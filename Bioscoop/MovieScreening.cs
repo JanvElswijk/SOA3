@@ -18,6 +18,10 @@ public class MovieScreening(Movie movie, DateTime dateAndTime, double pricePerSe
         return _pricePerSeat;
     }
     
+    public DateTime getDateAndTime() {
+        return _dateAndTime;
+    }
+
     public override String ToString() {
         // return "Movie: " + this._movie + " Date and time: " + this._dateAndTime + " Price per seat: " + this._pricePerSeat;
         
