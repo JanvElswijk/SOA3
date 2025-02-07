@@ -2,11 +2,8 @@
 
 public class Main
 {
-    public static void Main()
+    public static void main()
     {
         Console.WriteLine("Hello World!");
     }
-}
-{
-
 }
