@@ -22,14 +22,16 @@ public class Order {
 
     public double CalculatePrice() {
         double totalPrice = 0;
-        //calculate ticket cost
-        
+        //Calculate ticket cost by premium
         foreach (MovieTicket ticket in _tickets) {
             if (_isStudentOrder && ticket.IsPremiumTicket()) {
                 totalPrice += ticket.GetPrice() - 1;
             } else {
                 totalPrice += ticket.GetPrice();
             }
+
+      
+
         }
 
         //Group discount
@@ -37,9 +39,9 @@ public class Order {
             return totalPrice * 0.9;
         }
 
-
-        //if isStudentOrder, second ticket free on weekday
-        if (_isStudentOrder) {
+        DayOfWeek day = _tickets.First().getDateAndTime().DayOfWeek;
+        //if isStudentOrder, second ticket free && if isWeekday, second ticket free
+        if (_isStudentOrder || (day != DayOfWeek.Saturday && day != DayOfWeek.Sunday && day != DayOfWeek.Friday) ) {
             return (totalPrice / (double) _tickets.Count * ((double) _tickets.Count/2 - (_tickets.Count % 2) * 0.5));
         }
         return totalPrice;

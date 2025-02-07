@@ -17,6 +17,10 @@ public class MovieTicket {
         return _isPremium;
     }
 
+    public DateTime getDateAndTime() {
+        return this._screening.getDateAndTime();
+    }
+
     public double GetPrice() {
         //Premium Ticket
         if (this._isPremium) {
