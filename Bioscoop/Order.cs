@@ -40,9 +40,9 @@ public class Order {
         }
 
         DayOfWeek day = _tickets.First().getDateAndTime().DayOfWeek;
-        //if isStudentOrder, second ticket free && if isWeekday, second ticket free
-        if (_isStudentOrder || (day != DayOfWeek.Saturday && day != DayOfWeek.Sunday && day != DayOfWeek.Friday) ) {
-            return (totalPrice / (double) _tickets.Count * ((double) _tickets.Count/2 - (_tickets.Count % 2) * 0.5));
+        // if isStudentOrder, second ticket free && if isWeekday, second ticket free
+        if (_tickets.Count >= 2 && (_isStudentOrder || (day != DayOfWeek.Saturday && day != DayOfWeek.Sunday && day != DayOfWeek.Friday)) ) {
+            return totalPrice / _tickets.Count * ((double) _tickets.Count/2 - _tickets.Count % 2 * 0.5);
         }
         return totalPrice;
 
