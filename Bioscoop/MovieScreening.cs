@@ -1,22 +1,16 @@
-﻿using Bioscoop;
+﻿namespace Bioscoop;
 
-public class MovieScreening {
+public class MovieScreening(Movie movie, DateTime dateAndTime, double pricePerSeat) {
 
-    private DateTime dateAndTime;
-    private double pricePerSeat;
-    private Movie movie;
+    private DateTime _dateAndTime = dateAndTime;
+    private double _pricePerSeat = pricePerSeat;
+    private Movie _movie = movie;
 
-    public MovieScreening(Movie movie, DateTime dateAndTime, double pricePerSeat) {
-        this.movie = movie;
-        this.dateAndTime = dateAndTime;
-        this.pricePerSeat = pricePerSeat;
-    }
-
-    public double getPricePerSeat() {
-        return pricePerSeat;
+    public double GetPricePerSeat() {
+        return _pricePerSeat;
     }
     
-    public String toString() {
-        return "Movie: " + this.movie + " Date and time: " + this.dateAndTime + " Price per seat: " + this.pricePerSeat;
+    public override String ToString() {
+        return "Movie: " + this._movie + " Date and time: " + this._dateAndTime + " Price per seat: " + this._pricePerSeat;
     }
 }
