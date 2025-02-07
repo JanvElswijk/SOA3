@@ -1,7 +1,12 @@
-﻿namespace Bioscoop;
+﻿using System.Text.Json.Serialization;
+
+namespace Bioscoop;
 
 public class Movie {
+    [JsonInclude]
+    [JsonPropertyName("title")]
     private String _title;
+    [JsonIgnore]
     private ICollection<MovieScreening> _screenings;
 
     public Movie(String title) {

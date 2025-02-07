@@ -1,9 +1,17 @@
-﻿namespace Bioscoop;
+﻿using System.Text.Json.Serialization;
+
+namespace Bioscoop;
 
 public class MovieScreening(Movie movie, DateTime dateAndTime, double pricePerSeat) {
-
+    
+    [JsonInclude]
+    [JsonPropertyName("dateAndTime")]
     private DateTime _dateAndTime = dateAndTime;
+    [JsonInclude]
+    [JsonPropertyName("pricePerSeat")]
     private double _pricePerSeat = pricePerSeat;
+    [JsonInclude]
+    [JsonPropertyName("movie")]
     private Movie _movie = movie;
 
     public double GetPricePerSeat() {
@@ -11,6 +19,8 @@ public class MovieScreening(Movie movie, DateTime dateAndTime, double pricePerSe
     }
     
     public override String ToString() {
-        return "Movie: " + this._movie + " Date and time: " + this._dateAndTime + " Price per seat: " + this._pricePerSeat;
+        // return "Movie: " + this._movie + " Date and time: " + this._dateAndTime + " Price per seat: " + this._pricePerSeat;
+        
+        return this._movie + " Date and time: " + this._dateAndTime + " Price per seat: " + this._pricePerSeat;
     }
 }

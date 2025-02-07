@@ -1,9 +1,19 @@
-﻿namespace Bioscoop;
+﻿using System.Text.Json.Serialization;
+
+namespace Bioscoop;
 
 public class MovieTicket {
+    [JsonInclude]
+    [JsonPropertyName("rowNr")]
     private int _rowNr;
+    [JsonInclude]
+    [JsonPropertyName("seatNr")]
     private int _seatNr;
+    [JsonInclude]
+    [JsonPropertyName("isPremium")]
     private bool _isPremium;
+    [JsonInclude]
+    [JsonPropertyName("screening")]
     private MovieScreening _screening;
 
     public MovieTicket(MovieScreening screening, bool isPremiumReservation, int seatRow, int seatNr) {
@@ -27,6 +37,8 @@ public class MovieTicket {
     }
     
     public override String ToString() {
+        // return "Movie: " + this._screening.ToString() + " Seat: " + this._rowNr +"/"+ this._seatNr + " Premium: " + this._isPremium;
+        
         return "Movie: " + this._screening.ToString() + " Seat: " + this._rowNr +"/"+ this._seatNr + " Premium: " + this._isPremium;
     }
 }

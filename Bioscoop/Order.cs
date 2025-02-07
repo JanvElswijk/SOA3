@@ -1,9 +1,18 @@
-﻿namespace Bioscoop;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+
+namespace Bioscoop;
 
 public class Order {
-
+    
+    [JsonInclude]
+    [JsonPropertyName("orderNr")]
     private int _orderNr;
+    [JsonInclude]
+    [JsonPropertyName("isStudentOrder")]
     private bool _isStudentOrder;
+    [JsonInclude]
+    [JsonPropertyName("tickets")]
     private ICollection<MovieTicket> _tickets;
 
     public Order(int orderNr, bool isStudentOrder) {
@@ -39,7 +48,7 @@ public class Order {
 
 
         //if isStudentOrder, second ticket free on weekday
-        if (_isStudentOrder) {
+        if (_isStudentOrder && _tickets.Count >= 2) {
             return (totalPrice / (double) _tickets.Count * ((double) _tickets.Count/2 - (_tickets.Count % 2) * 0.5));
         }
         return totalPrice;
@@ -47,10 +56,27 @@ public class Order {
     }
     
     public override String ToString() {
-        return "Order number: " + this._orderNr + " Student: " + this._isStudentOrder + " Tickets: " + this._tickets;
+        // return "Order number: " + this._orderNr + " Student: " + this._isStudentOrder + " Tickets: " + this._tickets;
+        
+        return "Order number: " + this._orderNr + " Student: " + this._isStudentOrder + " Tickets: " + string.Join(", ", _tickets);
     }
 
     public void Export(TicketExportFormat format) {
-
+        string fileName = "order" + _orderNr;
+        
+        switch (format) {
+            case TicketExportFormat.JSON:
+                fileName += ".json";
+                string jsonString = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(fileName, jsonString);
+                break;
+            case TicketExportFormat.PLAINTEXT:
+                fileName += ".txt";
+                File.WriteAllText(fileName, this.ToString());
+                break;
+            default:
+                throw new Exception("Invalid export format");
+        }
     }
+    
 }
