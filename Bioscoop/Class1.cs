@@ -1,6 +1,12 @@
 ﻿namespace Bioscoop;
 
-public class Class1
+public class Main
+{
+    public static void Main()
+    {
+        Console.WriteLine("Hello World!");
+    }
+}
 {
 
 }
