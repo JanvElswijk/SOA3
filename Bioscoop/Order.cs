@@ -30,36 +30,44 @@ public class Order {
     }
 
     public double CalculatePrice() {
+        // 2nd ticket free for students always, 2nd ticket free for everyone else on monday through thursday
+        // Group discount: 10% off for groups of 6 or more on weekends
+        // Premium tickets are 2 euro more expensive for students and 3 euro more expensive for everyone else
+        
         double totalPrice = 0;
-        //Calculate ticket cost by premium
-        foreach (MovieTicket ticket in _tickets) {
-            if (_isStudentOrder && ticket.IsPremiumTicket()) {
-                totalPrice += ticket.GetPrice() - 1;
-            } else {
-                totalPrice += ticket.GetPrice();
-            }
-
-      
-
-        }
-
-        //Group discount
-        if (_tickets.Count >= 6) {
-            return totalPrice * 0.9;
-        }
-
         DayOfWeek day = _tickets.First().getDateAndTime().DayOfWeek;
-        // if isStudentOrder, second ticket free && if isWeekday, second ticket free
-        if (_tickets.Count >= 2 && (_isStudentOrder || (day != DayOfWeek.Saturday && day != DayOfWeek.Sunday && day != DayOfWeek.Friday)) ) {
-            return totalPrice / _tickets.Count * ((double) _tickets.Count/2 - _tickets.Count % 2 * 0.5);
+        bool isWeekend = day is DayOfWeek.Friday or DayOfWeek.Saturday or DayOfWeek.Sunday; 
+        
+        // Calculate total price of all tickets
+        foreach (MovieTicket ticket in _tickets) {
+            double ticketPrice = ticket.GetPrice();
+            if (_isStudentOrder && ticket.IsPremiumTicket()) {
+                ticketPrice -= 1;
+            } 
+            totalPrice += ticketPrice;
         }
+        
+        // 2nd ticket free calculation
+        if (_tickets.Count >= 2 && (_isStudentOrder || isWeekend)) {
+            double discount = _tickets
+                    // Order by price
+                .OrderBy(t => t.GetPrice())
+                    // Take the first half of the tickets
+                .Take(_tickets.Count / 2)
+                    // Sum the prices
+                .Sum(t => t.GetPrice());
+            totalPrice -= discount;
+        }
+        
+        // Group discount for everyone
+        if (isWeekend && _tickets.Count >= 6) {
+            totalPrice *= 0.9;
+        }
+        
         return totalPrice;
-
     }
     
     public override String ToString() {
-        // return "Order number: " + this._orderNr + " Student: " + this._isStudentOrder + " Tickets: " + this._tickets;
-        
         return "Order number: " + this._orderNr + " Student: " + this._isStudentOrder + " Tickets: " + string.Join(", ", _tickets);
     }
 
