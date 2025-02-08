@@ -48,7 +48,7 @@ public class Order {
         }
         
         // 2nd ticket free calculation
-        if (_tickets.Count >= 2 && (_isStudentOrder || isWeekend)) {
+        if (_tickets.Count >= 2 && (_isStudentOrder || !isWeekend)) {
             double discount = _tickets
                     // Order by price
                 .OrderBy(t => t.GetPrice())
