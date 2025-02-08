@@ -41,8 +41,6 @@ public class MovieTicket {
     }
     
     public override String ToString() {
-        // return "Movie: " + this._screening.ToString() + " Seat: " + this._rowNr +"/"+ this._seatNr + " Premium: " + this._isPremium;
-        
         return "Movie: " + this._screening.ToString() + " Seat: " + this._rowNr +"/"+ this._seatNr + " Premium: " + this._isPremium;
     }
 }
