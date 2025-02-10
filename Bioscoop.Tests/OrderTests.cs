@@ -1,98 +1,76 @@
+using System.Transactions;
 using Bioscoop;
 
 public class OrderTest
 {
+    //Create MovieScreening
+    private static MovieScreening CreateScreening(DateTime date, double price) =>
+        new(new Movie("The Matrix"), date, price);
 
-    [Fact]
-    public void CalculatePrice_NotStudentOrder_NotWeekday_FullPrice()
+    //Create Order
+    private static Order CreateOrder(
+        MovieScreening screening,
+        bool isStudentOrder,
+        MovieTicket[] tickets
+    )
+    {
+        var order = new Order(1, isStudentOrder);
+        foreach (var ticket in tickets)
+        {
+            order.AddSeatReservation(ticket);
+        }
+        return order;
+    }
+
+    private static bool IsWeekday(MovieTicket ticket)
+    {
+        DayOfWeek day = ticket.getDateAndTime().DayOfWeek;
+        return day
+            is DayOfWeek.Monday
+                or DayOfWeek.Tuesday
+                or DayOfWeek.Wednesday
+                or DayOfWeek.Thursday;
+    }
+
+[Theory]
+[InlineData("2023-10-07T20:00:00", 10, false, new[] { false, false }, 20, false)] // Weekend, full price
+[InlineData("2023-10-07T20:00:00", 10, true, new[] { false, false }, 10, false)] // Weekend, Student, second free
+[InlineData("2023-10-10T20:00:00", 10, false, new[] { false, false }, 10, true)]  // Weekday, second free
+[InlineData("2023-10-07T20:00:00", 10, false, new[] { false, false, false, false, false, false }, 54, false)] // Weekend, group discount
+[InlineData("2023-10-07T20:00:00", 10, true, new[] { false, false, false, false, false, false }, 27, false)] // Weekend, Student, group discount
+[InlineData("2023-10-07T20:00:00", 10, false, new[] { true, false }, 23, false)]  // 1 premium ticket (+3 extra)
+[InlineData("2023-10-07T20:00:00", 10, true, new[] { true, false}, 12, false)]  // 1 premium ticket (+2 extra), Student
+[InlineData("2023-10-10T20:00:00", 10, false, new[] { false, true}, 13, true)]  // Weekday, second free, 1 premium ticket (+3 extra)
+[InlineData("2023-10-07T20:00:00", 10, false, new[] { true, true, true, false, false, false }, 62.1, false)] // Group discount, 3 premium tickets (+9 extra)
+[InlineData("2023-10-07T20:00:00", 10, true, new[] { true, true, true, false, false, false }, 29.7, false)] // Group discount, Student, 3 premium tickets (+6 extra)
+    public void CalculatePrice_NotStudentOrder_CorrectPrice(
+        string date,
+        double pricePerTicket,
+        bool isStudentOrder,
+        bool[] isPremiumArray,
+        double expectedPrice,
+        bool expectedIsWeekday
+    )
     {
         // Arrange
-        Movie movie = new("The Matrix");
-        MovieScreening screening = new(movie, new DateTime(2023, 10, 7, 20, 0, 0), 10);
+        var screening = CreateScreening(DateTime.Parse(date), pricePerTicket);
 
-        MovieTicket ticket1 = new(screening, false, 1, 1);
-        MovieTicket ticket2 = new(screening, false, 1, 2);
+        // Convert bool[] to MovieTicket[]
+        var tickets = isPremiumArray
+            .Select((isPremium, index) => new MovieTicket(screening, isPremium, 1, index + 1))
+            .ToArray();
 
-        Order order = new(1, false);
-
-        order.AddSeatReservation(ticket1);
-        order.AddSeatReservation(ticket2);
+        var order = CreateOrder(screening, isStudentOrder, tickets);
 
         // Act
-        double price = order.CalculatePrice();
-        DayOfWeek day = ticket1.getDateAndTime().DayOfWeek;
-        bool isWeekday = day is DayOfWeek.Monday or DayOfWeek.Tuesday or DayOfWeek.Wednesday or DayOfWeek.Thursday;
+        double actualPrice = order.CalculatePrice();
+        bool isWeekday = IsWeekday(tickets[0]);
 
         // Assert
-        Assert.Equal(20, price);
-        Assert.False(isWeekday);
+        // Assert with a tolerance of 0.01 to handle floating-point precision issues
+        Assert.Equal(expectedPrice, actualPrice, 2);
+        Assert.Equal(expectedIsWeekday, isWeekday);
     }
-
-    [Fact]
-    public void CalculatePrice_NotStudentOrder_IsWeekday_SecondFree()
-    {
-      // Arrange
-        Movie movie = new("The Matrix");
-        MovieScreening screening = new(movie, new DateTime(2023, 10, 10, 20, 0, 0), 10);
-        
-        MovieTicket ticket1 = new(screening, false, 1, 1);
-        MovieTicket ticket2 = new(screening, false, 1, 2);
-
-        Order order = new(1, false);
-
-        order.AddSeatReservation(ticket1);
-        order.AddSeatReservation(ticket2);
-
-        // Act
-        double price = order.CalculatePrice();
-        DayOfWeek day = ticket1.getDateAndTime().DayOfWeek;
-        bool isWeekday = day is DayOfWeek.Monday or DayOfWeek.Tuesday or DayOfWeek.Wednesday or DayOfWeek.Thursday;
-
-
-        // Assert
-        Assert.Equal(10, price);
-        Assert.True(isWeekday);
-    }
-
-    [Fact]
-    public void CalculatePrice_NotStudentOrder_IsWeekend_GroupDiscount(){
-        // Arrange
-        Movie movie = new("The Matrix");
-        MovieScreening screening = new(movie, new DateTime(2023, 10, 7, 20, 0, 0), 10);
-
-        MovieTicket ticket1 = new(screening, false, 1, 1);
-        MovieTicket ticket2 = new(screening, false, 1, 2);
-        MovieTicket ticket3 = new(screening, false, 1, 3);
-        MovieTicket ticket4 = new(screening, false, 1, 4);
-        MovieTicket ticket5 = new(screening, false, 1, 5);
-        MovieTicket ticket6 = new(screening, false, 1, 6);
-
-        Order order = new(1, false);
-
-        order.AddSeatReservation(ticket1);
-        order.AddSeatReservation(ticket2);
-        order.AddSeatReservation(ticket3);
-        order.AddSeatReservation(ticket4);
-        order.AddSeatReservation(ticket5);
-        order.AddSeatReservation(ticket6);
-
-        // Act
-        double price = order.CalculatePrice();
-        DayOfWeek day = ticket1.getDateAndTime().DayOfWeek;
-        bool isWeekday = day is DayOfWeek.Monday or DayOfWeek.Tuesday or DayOfWeek.Wednesday or DayOfWeek.Thursday;
-
-
-        // Assert
-        Assert.Equal(54, price);
-        Assert.False(isWeekday);
-    }
-
-    //TODO:
-    // Use theory?
-    // Mocking or something idk
-    // NotStudentOrder IsWeekend NoGroupDiscount
-    // NotStudentOrder Premium Ticket
-    // StudentOrder Premium Ticket
 }
 
 // •	Elk 2e ticket is gratis voor studenten (elke dag van de week) of als het een voorstelling betreft op een doordeweekse dag (ma/di/wo/do) voor iedereen.
